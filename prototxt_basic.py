@@ -172,12 +172,32 @@ def LeakyReLU(txt_file, info):
     txt_file.write('  elu_param { alpha: 0.25 }\n')
     txt_file.write('}\n')
     txt_file.write('\n')
+  elif info[attrstr]['act_type'] == 'prelu':
+    txt_file.write('layer {\n')
+    txt_file.write('  bottom: "%s"\n'     % info['bottom'][0])
+    txt_file.write('  top: "%s"\n'        % info['top'])
+    txt_file.write('  name: "%s"\n'       % info['top'])
+    txt_file.write('  type: "PReLU"\n')
+    txt_file.write('  prelu_param { filler {type: "constant" value: 0.25 } channel_shared: false }\n')
+    txt_file.write('}\n')
+    txt_file.write('\n')
   else:
     raise Exception("unsupported Activation")
 
+def Dropout(txt_file, info):
+  txt_file.write('layer {\n')
+  txt_file.write('  bottom: "%s"\n'     % info['bottom'][0])
+  txt_file.write('  top: "%s"\n'        % info['top'])
+  txt_file.write('  name: "%s"\n'       % info['top'])
+  txt_file.write('  type: "Dropout"\n')
+  txt_file.write('  dropout_param { \n')
+  txt_file.write('    dropout_ratio: %s\n' % info[attrstr]['p'])
+  txt_file.write('  }\n')
+  txt_file.write('}\n')
+  txt_file.write('\n')
+
 def Eltwise(txt_file, info, op):
   txt_file.write('layer {\n')
-  txt_file.write('  type: "Eltwise"\n')
   txt_file.write('  top: "%s"\n'        % info['top'])
   txt_file.write('  name: "%s"\n'       % info['top'])
   for btom in info['bottom']:
@@ -218,6 +238,8 @@ def write_node(txt_file, info):
         LeakyReLU(txt_file, info)
     elif info['op'] == 'elemwise_add':
         ElementWiseSum(txt_file, info)
+    elif info['op'] == 'Dropout':
+        Dropout(txt_file, info)
     else:
         pprint.pprint(info)
         sys.exit("Warning!  Unknown mxnet op:{}".format(info['op']))

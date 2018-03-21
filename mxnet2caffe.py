@@ -17,7 +17,9 @@ args = parser.parse_args()
 # ------------------------------------------
 # Load
 _, arg_params, aux_params = mx.model.load_checkpoint(args.mx_model, args.mx_epoch)
+
 net = caffe.Net(args.cf_prototxt, caffe.TRAIN)   
+print("p1")
 
 # ------------------------------------------
 # Convert
